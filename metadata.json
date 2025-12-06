@@ -1,0 +1,5 @@
+{
+  "name": "3D Stamp Prompt Gen",
+  "description": "Um gerador de prompts especializado para criar selos 3D ultra-realistas com base em inputs do usuário e referências visuais.",
+  "requestFramePermissions": []
+}
