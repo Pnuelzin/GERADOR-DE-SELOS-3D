@@ -108,10 +108,11 @@ const App: React.FC = () => {
       });
       saveToHistory(promptText, formData);
       setStatus(ProcessingState.SUCCESS);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setStatus(ProcessingState.ERROR);
-      setErrorMsg("Erro ao conectar com a IA. Verifique sua chave de API ou tente novamente.");
+      // Display the actual error message
+      setErrorMsg(err.message || "Erro ao conectar com a IA. Verifique sua chave de API ou tente novamente.");
     }
   };
 

@@ -46,9 +46,17 @@ Diretrizes de realismo: fissuras, brilho irregular, variação de cor nos orname
 `;
 
 export const generateStampPrompt = async (data: StampFormData): Promise<string> => {
-  const apiKey = process.env.API_KEY;
+  // Safe access to process.env to avoid ReferenceError in browser environments without polyfills
+  let apiKey: string | undefined;
+  try {
+    apiKey = process.env.API_KEY;
+  } catch (e) {
+    // process is not defined
+    console.warn("process is not defined, checking implicit env");
+  }
+
   if (!apiKey) {
-    throw new Error("API Key not found in environment variables");
+    throw new Error("Chave de API não encontrada. Configure a variável de ambiente API_KEY.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -77,18 +85,18 @@ export const generateStampPrompt = async (data: StampFormData): Promise<string> 
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: {
-        role: 'user',
         parts: parts
       },
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7, // Slightly creative but grounded in the template
+        temperature: 0.7, 
       }
     });
 
     return response.text || "Não foi possível gerar o prompt. Tente novamente.";
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini API Error:", error);
-    throw error;
+    // Propagate the specific error message from the API or network
+    throw new Error(error.message || "Erro desconhecido na API do Gemini");
   }
 };
