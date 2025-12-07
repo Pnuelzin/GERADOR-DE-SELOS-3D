@@ -45,18 +45,42 @@ Pós-processo: tonemapping filmic, curvas em S suave, micro-sharpen em arestas d
 Diretrizes de realismo: fissuras, brilho irregular, variação de cor nos ornamentos, marcas discretas de manufatura; evitar flare sobre tipografia e excesso de glow."
 `;
 
-export const generateStampPrompt = async (data: StampFormData): Promise<string> => {
-  // Safe access to process.env to avoid ReferenceError in browser environments without polyfills
-  let apiKey: string | undefined;
+const getApiKey = (): string | undefined => {
+  // Tenta encontrar a chave em diferentes locais comuns
   try {
-    apiKey = process.env.API_KEY;
+    // 1. Node.js / Webpack / CRA / Vercel padrão
+    if (typeof process !== 'undefined' && process.env?.API_KEY) {
+      return process.env.API_KEY;
+    }
+    
+    // 2. Fallback para prefixos comuns se a variável pura não for exposta
+    if (typeof process !== 'undefined') {
+       if (process.env?.REACT_APP_API_KEY) return process.env.REACT_APP_API_KEY;
+       if (process.env?.NEXT_PUBLIC_API_KEY) return process.env.NEXT_PUBLIC_API_KEY;
+    }
+
+    // 3. Vite (import.meta.env)
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      if (import.meta.env.API_KEY) return import.meta.env.API_KEY;
+      // @ts-ignore
+      if (import.meta.env.VITE_API_KEY) return import.meta.env.VITE_API_KEY;
+    }
   } catch (e) {
-    // process is not defined
-    console.warn("process is not defined, checking implicit env");
+    console.warn("Erro ao ler variáveis de ambiente:", e);
   }
+  return undefined;
+};
+
+export const generateStampPrompt = async (data: StampFormData): Promise<string> => {
+  const apiKey = getApiKey();
 
   if (!apiKey) {
-    throw new Error("Chave de API não encontrada. Configure a variável de ambiente API_KEY.");
+    throw new Error(
+      "Chave de API não encontrada.\n" +
+      "Se estiver no Vercel, adicione 'API_KEY' nas configurações de Environment Variables do projeto."
+    );
   }
 
   const ai = new GoogleGenAI({ apiKey });

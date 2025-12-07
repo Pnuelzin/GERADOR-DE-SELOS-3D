@@ -224,7 +224,7 @@ const App: React.FC = () => {
                 </div>
 
                 {errorMsg && (
-                  <div className="p-3 mb-4 text-sm text-red-200 bg-red-900/30 border border-red-800 rounded-lg">
+                  <div className="p-3 mb-4 text-sm text-red-200 bg-red-900/30 border border-red-800 rounded-lg whitespace-pre-line">
                     {errorMsg}
                   </div>
                 )}
